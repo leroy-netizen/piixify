@@ -12,6 +12,7 @@ import { crossOriginOpenerPolicy } from "helmet";
 import { crossOriginResourcePolicy } from "helmet";
 // relative imports
 import { registerUser } from "./controllers/auth.controller.js";
+import authRoutes from "./routes/auth.routes.js"
 
 // configurations
 const __filename = fileURLToPath(import.meta.url);
@@ -44,7 +45,10 @@ const storage = multer.diskStorage({
 const upload = multer( { storage } );
 
 // ROUTES WITH FILES
-app.post("/auth/register", upload.single("picture"), registerUser)
+app.post( "/auth/register", upload.single( "picture" ), registerUser )
+
+// ROUTES
+app.use("/auth", authRoutes)
 
 const port = process.env.PORT || 3001;
 

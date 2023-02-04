@@ -38,5 +38,32 @@ export const registerUser = async (req, res) => {
     //   status code 201 === created
   } catch (err) {
     res.status(500).json({ error: err.message });
-  }
+}
 };
+
+// LOG THE USER IN
+export const login = async ( req, res ) =>
+{
+    try
+    {
+        // destrucure email and password from request body  
+        const { email, password } = await req.body
+        const user = await User.findOne( { email: email } )
+        if (!user) {
+            return res.status(400).json({mesage: "User not found "})
+        } 
+        
+        // check if user password matches the given password
+        const isMatch = await bcrypt.compare( password, user.password );
+        if ( !isMatch ) return res.status( 400 ).json( { "message": "Invalid credentials entered" } )
+        
+        // Generate our access token
+        const token = jwt.sign( { id: user._id }, process.env.JWT_SECRET_KEY )
+        delete user.password;
+        res.status(200).json({token, user})
+    } catch ( err )
+    {
+        res.status(500).json({ error: err.message });
+        
+    }
+}
