@@ -10,10 +10,12 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { crossOriginOpenerPolicy } from "helmet";
 import { crossOriginResourcePolicy } from "helmet";
+// relative imports
+import { registerUser } from "./controllers/auth.controller.js";
 
 // configurations
 const __filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -21,7 +23,7 @@ const app = express();
 
 app.use(express.json());
 app.use(helmet());
-app.use(helmet, crossOriginResourcePolicy({ policy: "cross-origin" }));
+app.use(helmet(), crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
@@ -39,4 +41,23 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer( { storage } );
+
+// ROUTES WITH FILES
+app.post("/auth/register", upload.single("picture"), registerUser)
+
+const port = process.env.PORT || 3001;
+
+// MONGO Connection
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+  })
+  .then(() =>
+    app.listen(
+      port,
+      () => console.log(`server started running on port: ${port}`)
+    )
+  )
+  .catch((err) => console.log(`${err} occured`));
