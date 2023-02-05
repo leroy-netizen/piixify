@@ -1,13 +1,36 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import "./App.css";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Navigate,
+  Route,
+} from "react-router-dom";
+import { useSelector } from "react-redux";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { createTheme } from "@mui/material";
+import { useMemo } from "react";
+
+// relative imports
+import HomePage from "./scenes/homePage";
+import LoginPage from "./scenes/loginPage/LoginPage";
+import { themeSettings } from "./theme";
+import ProfilePage from "./scenes/profilePage/ProfilePage";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const mode = useSelector((state) => state.mode);
+  const theme = useMemo(() => createTheme(themeSettings(mode, [mode])));
 
   return (
     <div className="App">
-      <h1>Hello world</h1>
+      <Router>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
+          </Routes>
+        </ThemeProvider>
+      </Router>
     </div>
   );
 }
